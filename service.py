@@ -4,7 +4,8 @@ from openai import OpenAI
 from repo import upsert_documents, query_documents
 from fastapi import UploadFile
 from typing import List
-from utils import extract_text_from_bytes, split_text
+from utils import extract_text_from_bytes,split_text_by_sentence
+import tiktoken
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_key)
@@ -19,8 +20,13 @@ async def embed_pdfs(pdf_files: List[UploadFile]):
         
         # Extract text from bytes (modify utils.py to accept bytes)
         full_text = extract_text_from_bytes(file_bytes)
-        chunks = split_text(full_text)
+        chunks = split_text_by_sentence(full_text)
+        tokenizer = tiktoken.get_encoding("cl100k_base")
         
+        
+        for i, chunk in enumerate(chunks):
+            tokens_in_chunk = len(tokenizer.encode(chunk))
+            print("chunk ",i+1," has tokens ",tokens_in_chunk)
         print(f"Extracted text and split into {len(chunks)} chunks for {upload_file.filename}")
         
         for i, chunk in enumerate(chunks):
@@ -53,6 +59,7 @@ def chat_answer(question: str) -> str:
     chunks = query_documents(question)
     context = "\n\n".join(chunks)
     prompt = PROMPT_TEMPLATE.format(context=context, question=question)
+    print("prompt is -------",prompt)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
