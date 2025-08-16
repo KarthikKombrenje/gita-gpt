@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Local storage for ChromaDB
+chroma_persistent_storage/
+
+# Environment files (keep secrets local, don’t commit to GitHub)
+.env
+.env.*
